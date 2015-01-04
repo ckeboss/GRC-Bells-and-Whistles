@@ -5,30 +5,20 @@ use warnings;
 use LWP::Curl;
 use XML::LibXML;
 
-my $lwpcurl = LWP::Curl->new(user_agent=> "GRC Bells & Whistles (https://github.com/ckeboss/GRC-Bells-and-Whistles)");
-my $content = $lwpcurl->get("https://www.grc.com/securitynow.htm");
-
 my $counter;
 
+my $lwpcurl = LWP::Curl->new(user_agent=> "GRC Bells & Whistles (https://github.com/ckeboss/GRC-Bells-and-Whistles)");
+my $inital_content = $lwpcurl->get("https://www.grc.com/securitynow.htm");
+
 my $parser = XML::LibXML->new();
+
 $parser->recover_silently(1);
-my $doc = $parser->load_html(string => $content);
+my $doc = $parser->load_html(string => $inital_content);
 
 my $xpc = XML::LibXML::XPathContext->new($doc);
 
-foreach my $cont ($xpc->findnodes('//img[@src="/image/textfile.gif"]')) {
-	my $msg = $cont->getParentNode->getAttribute("href");
-	# Gets the href of all text transcripts for a page
-	if($msg) {
-		my $transcript = $lwpcurl->get("https://www.grc.com".$msg);
-		if($transcript =~ /(.{100}bells and whistles.{50})/i) {
-			$counter++;
-			print $1."\n";
-			print "https://www.grc.com".$msg;
-			print "\n\n";
-		}
-	}
-}
+print "Page: https://www.grc.com/securitynow.htm\n\n";
+print_instances("https://www.grc.com/securitynow.htm");
 
 foreach my $cont ($xpc->findnodes('//p')) {
     my $node_test = $cont->getChildrenByTagName('a');
