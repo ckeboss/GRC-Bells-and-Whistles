@@ -17,13 +17,18 @@ my $doc = $parser->load_html(string => $inital_content);
 
 my $xpc = XML::LibXML::XPathContext->new($doc);
 
+#Inital Page
 print "Page: https://www.grc.com/securitynow.htm\n\n";
 print_instances("https://www.grc.com/securitynow.htm");
 
+#Get all additional pages
 foreach my $cont ($xpc->findnodes('//p')) {
     my $node_test = $cont->getChildrenByTagName('a');
     $node_test->foreach( \&loop_though );
 }
+
+print "Final count: $counter\n";
+
 
 sub print_instances {
 	my $url = $_[0];
@@ -57,5 +62,3 @@ sub loop_though {
         print_instances("https://www.grc.com".$_->getAttribute('href'));
     }
 }
-
-print "Final count: $counter\n";
